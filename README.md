@@ -4,12 +4,12 @@
 # Descripción
 Este proyecto corresponde al Trabajo Práctico Integrador (TP2) de la materia **Organización Empresarial** de la UTN, para la carrera de Tecnicatura en Programación.  
 El objetivo esidentificar un proceso administrativo crítico dentro de una organización, en mi caso elegí Gestión de vacaciones mediante un chatbot en Telegram, siguiendo el modelo BPMN 2.0.
-Lenguaje utilizado: Python  
-Plataforma escogida: Telegram Bot API  
-Librerías:  
+**Lenguaje utilizado**: Python  
+**Plataforma escogida**: Telegram Bot API  
+**Librerías**:  
   - `python-telegram-bot` 
   - `pandas`  
-_Estructura del repositorio_:
+**Estructura del repositorio**:
 Nombre: TPI-GestionarVacaciones/
 VacacionesTPI_Bot: estructura del bot
 Dias_disponibles_trabajadores.csv: Base de datos simulada con nombre de los trabajadores de la nómina y días disponibles de vacaciones
@@ -34,3 +34,11 @@ trabajador,dias_disponibles
 Alejandro,14
 Ana,14
 Andres,14
+
+**Para diccionario de datos, manual de usuario y pruebas, revisar el pdf compartido**
+
+**Seguridad del GitHub**
+Para la conexión entre Visual Studio Code / GitHub Desktop y el repositorio remoto se utilizó un **Personal Access Token (PAT)**.  
+Todos los cambios se registraron mediante commits con descripción de los cambios y mensajes claros que documentan la evolución del proyecto.  
+De esta manera, se cumple con las buenas prácticas de seguridad y versionado exigidas en la consigna.
+
