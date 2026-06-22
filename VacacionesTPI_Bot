@@ -1,0 +1,102 @@
+#token telegram: 8742922318:AAEh5M4ZRQ-IOhlhguBdzDvpgn8dYDBfHbg
+
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
+import pandas as pd
+
+trabajador_actual = None
+dias_disponibles = 0
+estado = None  # puede ser "nombre", "dias", "manager", "rrhh"
+
+# /start
+async def start(update, context):
+    await update.message.reply_text("¡Hola! Soy tu bot de vacaciones 😊")
+
+# /solicitud
+async def solicitud(update, context):
+    global estado
+    estado = "nombre"
+    await update.message.reply_text("Por favor, escribí tu nombre para validar en la base de datos.")
+
+# Captura de mensajes
+async def manejar_mensaje(update, context):
+    global trabajador_actual, dias_disponibles, estado
+
+    texto = update.message.text.strip()
+
+    if estado == "nombre":
+        trabajador_actual = texto
+        db = pd.read_csv("dias_disponibles_trabajadores.csv")
+
+        # Comparación en minúsculas para evitar problemas de mayúsculas/minúsculas
+        registro = db.loc[db['trabajador'].str.lower() == trabajador_actual.lower()]
+
+        if registro.empty:
+            await update.message.reply_text("No estás registrado en la base de datos.")
+            estado = None
+        else:
+            dias_disponibles = int(registro['dias_disponibles'].values[0])
+            estado = "dias"
+            await update.message.reply_text(
+                f"{trabajador_actual}, tienes {dias_disponibles} días disponibles. "
+                "¿Cuántos días de vacaciones quieres solicitar?"
+            )
+
+    elif estado == "dias":
+        try:
+            solicitados = int(texto)
+            if solicitados <= dias_disponibles:
+                estado = "manager"
+                await update.message.reply_text("Solicitud enviada al Manager ✅.")
+                await update.message.reply_text("Hola! ¿Sos Manager? Si sí, usá /aprobar_manager o /rechazar_manager.")
+            else:
+                estado = None
+                await update.message.reply_text("No tienes saldo de días. Solicitud rechazada ❌.")
+        except ValueError:
+            await update.message.reply_text("Por favor, ingresá un número válido de días.")
+
+    elif estado == "manager":
+        # Si no usa los comandos correctos
+        await update.message.reply_text("Requiere aprobación del Manager mediante los comandos correspondientes.")
+        await update.message.reply_text("Hola! ¿Sos Manager? Si sí, usá /aprobar_manager o /rechazar_manager.")
+
+    elif estado == "rrhh":
+        # Si no usa los comandos correctos
+        await update.message.reply_text("Requiere aprobación de RRHH mediante los comandos correspondientes.")
+        await update.message.reply_text("Hola! ¿Sos RRHH? Si sí, usá /aprobar_rrhh o /rechazar_rrhh.")
+
+# Funciones para Manager
+async def aprobar_manager(update, context):
+    global estado
+    estado = "rrhh"
+    await update.message.reply_text("Manager: Solicitud aprobada ✅. Enviada a RRHH.")
+    await update.message.reply_text("Hola! ¿Sos RRHH? Si sí, usá /aprobar_rrhh o /rechazar_rrhh.")
+
+async def rechazar_manager(update, context):
+    global estado
+    estado = None
+    await update.message.reply_text("Manager: Solicitud rechazada ❌. Notificación enviada al trabajador.")
+
+# Funciones para RRHH
+async def aprobar_rrhh(update, context):
+    global estado
+    estado = None
+    await update.message.reply_text("RRHH: Solicitud aprobada y registrada ✅.")
+
+async def rechazar_rrhh(update, context):
+    global estado
+    estado = None
+    await update.message.reply_text("RRHH: Solicitud rechazada ❌. Notificación enviada al trabajador.")
+
+def main():
+    app = Application.builder().token("8742922318:AAEh5M4ZRQ-IOhlhguBdzDvpgn8dYDBfHbg").build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("solicitud", solicitud))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, manejar_mensaje))
+    app.add_handler(CommandHandler("aprobar_manager", aprobar_manager))
+    app.add_handler(CommandHandler("rechazar_manager", rechazar_manager))
+    app.add_handler(CommandHandler("aprobar_rrhh", aprobar_rrhh))
+    app.add_handler(CommandHandler("rechazar_rrhh", rechazar_rrhh))
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
