@@ -42,3 +42,5 @@ Para la conexión entre Visual Studio Code / GitHub Desktop y el repositorio rem
 Todos los cambios se registraron mediante commits con descripción de los cambios y mensajes claros que documentan la evolución del proyecto.  
 De esta manera, se cumple con las buenas prácticas de seguridad y versionado exigidas en la consigna.
 
+**Link del telegram bot** : https://t.me/VacacionesTPI_Bot
+
